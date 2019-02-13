@@ -3,14 +3,14 @@ package com.app.config;
 @Configuration
 public class SpringJDBCTemplateConfig {
 
-	@Value("${DB_DRIVER_CLASS_NAME}")
+	@Value("${DRIVER_CLASS_NAME}")
 	private String driverClassName;
 	
-	@Value("${DB_CONNECTION_URL_1}")
-	private String connectionUrl1 = "DB_CONNECTION_URL_1";
+	@Value("${CONNECTION_URL_1}")
+	private String connectionUrl1 = "CONNECTION_URL_1";
 	
-	@Value("${DB_CONNECTION_URL_2}")
-	private String connectionUrl2 = "DB_CONNECTION_URL_2";
+	@Value("${CONNECTION_URL_2}")
+	private String connectionUrl2 = "CONNECTION_URL_2";
 	
 	@Value("${DB_USERNAME}")
 	private String userName = "DB_USERNAME";
