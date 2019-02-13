@@ -1,0 +1,131 @@
+package com.app.config;
+
+@Configuration
+public class SpringJDBCTemplateConfig {
+
+	@Value("${DB_DRIVER_CLASS_NAME}")
+	private String driverClassName;
+	
+	@Value("${DB_CONNECTION_URL_1}")
+	private String connectionUrl1 = "DB_CONNECTION_URL_1";
+	
+	@Value("${DB_CONNECTION_URL_2}")
+	private String connectionUrl2 = "DB_CONNECTION_URL_2";
+	
+	@Value("${DB_USERNAME}")
+	private String userName = "DB_USERNAME";
+	
+	@Value("${DB_PASSWORD}")
+	private String password = "DB_PASSWORD";
+	
+	@Bean
+    public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
+        
+        String propertiesFilename = "config/abc.properties";
+
+        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        configurer.setLocation(new ClassPathResource(propertiesFilename));
+
+        return configurer;
+    }
+	
+	@Bean(name="dataSource1")
+    public DataSource getDataSource1() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(driverClassName);
+        dataSource.setUrl(connectionUrl1);
+        dataSource.setUsername(userName);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
+
+    @Bean(name="namedParameterJdbcTemplate1")
+    public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate1() {
+    	NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDataSource1());
+        return jdbcTemplate;
+    }
+    
+    @Bean(name="dataSource2")
+    public DataSource getDataSource2() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(driverClassName);
+        dataSource.setUrl(connectionUrl2);
+        dataSource.setUsername(userName);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
+
+    @Bean(name="namedParameterJdbcTemplate2")
+    public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate2() {
+    	NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDataSource2());
+        return jdbcTemplate;
+    }
+
+    @Bean
+    public FirstRowMapper getFirstRowMapper(){
+    	return new FirstRowMapper();
+    	
+    }
+
+    @Bean
+    public FirstDao firstDao(){
+    	FirstDao firstDao = new FirstDao();
+    	firstDao.setNamedParameterJdbcTemplate1(getNamedParameterJdbcTemplate1());
+    	firstDao.setFirstRowMapper(getFirstRowMapper());
+        return firstDao;
+    }
+    
+    
+    @Bean
+    public JobRowMapper getJobRowMapper(){
+    	return new JobRowMapper();
+    }
+    
+    @Bean
+    public JobDao jobDao(){
+    	JobDao jobDao=new JobDao();
+    	jobDao.setNamedParameterJdbcTemplate1(getNamedParameterJdbcTemplate1());
+    	jobDao.setNamedParameterJdbcTemplate2(getNamedParameterJdbcTemplate2());
+    	jobDao.setJobRowMapper(getJobRowMapper());
+    	return jobDao;
+    }
+    
+    
+}
+================================
+package com.app.config;
+
+
+
+@Service
+public class BeanUtils implements ApplicationContextAware {
+
+	@Autowired
+	private static ApplicationContext context;
+	
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		context = applicationContext;
+	}
+
+	public static <T> T getBean(Class<T> beanClass) {
+        return context.getBean(beanClass);
+    }
+}
+=======================================
+package com.app.appuse.config;
+
+
+public class Service{
+	private NamedParameterJdbcTemplate namedParameterJdbcTemplate1;
+	private FirstRowMapper firstRowMapper;
+	
+	//getter and setters
+	public void methodCall(){
+		FirstDao firstDao = BeanUtils.getBean(FirstDao.class); //returns the spring maintained object
+		firstDao.CallingOfAnyMethod();
+		namedParameterJdbcTemplate221.query();
+		namedParameterJdbcTemplate221.update();
+	}
+
+}
+================================================
